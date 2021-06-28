@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
+from decouple import config, Csv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-#5bt^n*!l_w!dcncb3a!+n69v1q1h2wf@rou$d)x&p4!ygo_e)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,7 +38,40 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    "authemail",
+    "ayaloapp",
+    "productlisting_api",
+    # "google_auth_api",
+    # "gooleapiclient",
+    # "rest_framework_simplejwt",
+    'drf_yasg',    
+    'phone_verify'
+
+
 ]
+
+PHONE_VERIFICATION = {
+    "BACKEND": "phone_verify.backends.twilio.TwilioBackend",
+    "OPTIONS": {
+        "SID": "fake",
+        "SECRET": "fake",
+        "FROM": "+14755292729",
+        "SANDBOX_TOKEN": "123456",
+    },
+    "TOKEN_LENGTH": 6,
+    "MESSAGE": "Welcome to {app}! Please use security code {security_code} to proceed.",
+    "APP_NAME": "Phone Verify",
+    "SECURITY_CODE_EXPIRATION_TIME": 3600,  # In seconds only
+    "VERIFY_SECURITY_CODE_ONLY_ONCE": False,  # If False, then a security code can be used multiple times for verification
+}
+REST_FRAMEWORK = {
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework.authentication.TokenAuthentication',
+	)
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -47,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'ayaloconfig.urls'
@@ -69,7 +104,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ayaloconfig.wsgi.application'
 
-
+SWAGGER_SETTINGS={
+    'JSON_EDITOR': True
+}
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -119,7 +156,24 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'ayaloapp.MyUser'
+
+EMAIL_FROM = config('EMAIL_ADDRESS')
+EMAIL_BCC=config('EMAIL_ADDRESS')
+
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('HOST_USER')
+EMAIL_HOST_PASSWORD = config('PASSWORD')
+EMAIL_USE_TLS = True
+
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
