@@ -45,18 +45,23 @@ $ git clone https://github.com/zuri-training/AyaloOnline-be-pjt-101.git
 $ cd AyaloOnline-be-pjt-101
 Create a virtual environment to install dependencies in and activate it:
 
+```bash
 $ py -m venv env
 $ env\scripts\activate
-
+```
 Then install the dependencies:
 
+```bash
 (env)$ pip install -r requirements.txt
+```
 Note the (env) in front of the prompt. This indicates that this terminal session operates in a virtual environment set up by virtualenv2.
 
 Once pip has finished downloading the dependencies:
 
+```bash
 (env)$ cd project
 (env)$ python manage.py runserver
+```
 
 
 ## User Guide
