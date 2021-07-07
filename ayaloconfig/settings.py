@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 import os
 from decouple import config, Csv
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,39 +45,43 @@ INSTALLED_APPS = [
     "authemail",
     "ayaloapp",
     "productlisting_api",
-    # "google_auth_api",
-    # "gooleapiclient",
-    # "rest_framework_simplejwt",
     'drf_yasg',    
-    'phone_verify'
+    'order_api',
+    'corsheaders'
 
 
 ]
 
-PHONE_VERIFICATION = {
-    "BACKEND": "phone_verify.backends.twilio.TwilioBackend",
-    "OPTIONS": {
-        "SID": "fake",
-        "SECRET": "fake",
-        "FROM": "+14755292729",
-        "SANDBOX_TOKEN": "123456",
-    },
-    "TOKEN_LENGTH": 6,
-    "MESSAGE": "Welcome to {app}! Please use security code {security_code} to proceed.",
-    "APP_NAME": "Phone Verify",
-    "SECURITY_CODE_EXPIRATION_TIME": 3600,  # In seconds only
-    "VERIFY_SECURITY_CODE_ONLY_ONCE": False,  # If False, then a security code can be used multiple times for verification
-}
+MEDIA_URL='/media/'
+MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
+
+# PHONE_VERIFICATION = {
+#     "BACKEND": "phone_verify.backends.twilio.TwilioBackend",
+#     "OPTIONS": {
+#         "SID": "fake",
+#         "SECRET": "fake",
+#         "FROM": "+14755292729",
+#         "SANDBOX_TOKEN": "123456",
+#     },
+#     "TOKEN_LENGTH": 6,
+#     "MESSAGE": "Welcome to {app}! Please use security code {security_code} to proceed.",
+#     "APP_NAME": "Phone Verify",
+#     "SECURITY_CODE_EXPIRATION_TIME": 3600,  # In seconds only
+#     "VERIFY_SECURITY_CODE_ONLY_ONCE": False,  # If False, then a security code can be used multiple times for verification
+
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'rest_framework.authentication.TokenAuthentication',
 	)
 }
+TEMPLATE_DIR=os.path.join(BASE_DIR, "templates")
 
+CORS_ALLOW_ALL_ORIGINS=True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -86,10 +92,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'ayaloconfig.urls'
 
+TEMPLATE_DIR=os.path.join(BASE_DIR, "templates")
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,6 +110,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'ayaloconfig.wsgi.application'
 
 SWAGGER_SETTINGS={
@@ -109,13 +118,19 @@ SWAGGER_SETTINGS={
 }
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL')
+
+)
+
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -150,6 +165,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+FIXTURE_DIRS = (
+   os.path.join(BASE_DIR, 'fixtures'),
+)
+
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -166,7 +186,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'ayaloapp.MyUser'
 
 EMAIL_FROM = config('EMAIL_ADDRESS')
-EMAIL_BCC=config('EMAIL_ADDRESS')
+# EMAIL_BCC=config('EMAIL_ADDRESS')
 
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -177,3 +197,6 @@ EMAIL_USE_TLS = True
 
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# SID = config('Account_sid')
+# SECRET = config('Auth_token')
+# FROM = config('Phone_number')
