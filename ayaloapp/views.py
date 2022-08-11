@@ -17,6 +17,14 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model
+from django.utils.translation import gettext as _
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from authemail.models import SignupCode, EmailChangeCode, PasswordResetCode
 from authemail.models import send_multi_format_email
 from authemail.serializers import SignupSerializer, LoginSerializer
@@ -26,11 +34,6 @@ from authemail.serializers import EmailChangeSerializer
 from authemail.serializers import PasswordChangeSerializer
 from authemail.serializers import UserSerializer
 
-
-
-
-
-# Create your views here.
 
 class Signup(APIView):
 	permission_classes = (AllowAny,)
@@ -488,27 +491,6 @@ class UserMe(APIView):
         return Response(self.serializer_class(request.user).data)
 
 
-
-from datetime import date
-
-from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
-from django.utils.translation import gettext as _
-
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from authemail.models import SignupCode, EmailChangeCode, PasswordResetCode
-from authemail.models import send_multi_format_email
-from authemail.serializers import SignupSerializer, LoginSerializer
-from authemail.serializers import PasswordResetSerializer
-from authemail.serializers import PasswordResetVerifiedSerializer
-from authemail.serializers import EmailChangeSerializer
-from authemail.serializers import PasswordChangeSerializer
-from authemail.serializers import UserSerializer
 
 
 
