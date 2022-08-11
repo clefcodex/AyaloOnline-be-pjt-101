@@ -2,24 +2,31 @@ from django.shortcuts import render
 from .serializers import  UserSerializer, CompleteProfileSerializer
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
-from datetime import date
-
-from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
-from django.utils.translation import gettext as _
-
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from twilio.rest import Client
-# from .models import SignupCode
 from authemail.models import SignupCode
 from rest_framework import generics
 from .models import ModelLeesee
 from .serializers import LeeseeSerializer
 from .permissions	import IsVerified
+from datetime import date
+from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model
+from django.utils.translation import gettext as _
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from authemail.models import SignupCode, EmailChangeCode, PasswordResetCode
+from authemail.models import send_multi_format_email
+from authemail.serializers import SignupSerializer, LoginSerializer
+from authemail.serializers import PasswordResetSerializer
+from authemail.serializers import PasswordResetVerifiedSerializer
+from authemail.serializers import EmailChangeSerializer
+from authemail.serializers import PasswordChangeSerializer
+from authemail.serializers import UserSerializer
+
+
 
 
 
@@ -195,27 +202,6 @@ class DetailLeesee(generics.RetrieveUpdateDestroyAPIView):
     queryset = ModelLeesee.objects.all()
     serializer_class = LeeseeSerializer
     permission_classes = (IsAuthenticated,)
-
-from datetime import date
-
-from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
-from django.utils.translation import gettext as _
-
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from authemail.models import SignupCode, EmailChangeCode, PasswordResetCode
-from authemail.models import send_multi_format_email
-from authemail.serializers import SignupSerializer, LoginSerializer
-from authemail.serializers import PasswordResetSerializer
-from authemail.serializers import PasswordResetVerifiedSerializer
-from authemail.serializers import EmailChangeSerializer
-from authemail.serializers import PasswordChangeSerializer
-from authemail.serializers import UserSerializer
 
 
 
