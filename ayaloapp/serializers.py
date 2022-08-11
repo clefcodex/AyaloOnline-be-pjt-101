@@ -1,7 +1,5 @@
 from rest_framework import serializers
 from .models import  MyUser
-from phone_verify.serializers import PhoneSerializer
-from phonenumber_field.serializerfields import PhoneNumberField
 from .models import ModelLeesee
 
 class UserSerializer(serializers.Serializer):
@@ -27,7 +25,7 @@ class CompleteProfileSerializer(serializers.Serializer):
 		Last_name=serializers.CharField()
 		gender_choices=[('Female', 'Female'), ('Male', 'Male')]
 		Gender=serializers.ChoiceField(choices=gender_choices, allow_blank=False)
-		Phone_number = PhoneNumberField()
+		Phone_number = serializers.CharField()
 
 		
 

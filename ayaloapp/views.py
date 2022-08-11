@@ -2,7 +2,6 @@ from django.shortcuts import render
 from .serializers import  UserSerializer, CompleteProfileSerializer
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
-from twilio.rest import Client
 from authemail.models import SignupCode
 from rest_framework import generics
 from .models import ModelLeesee
