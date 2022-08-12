@@ -32,127 +32,131 @@ from authemail.serializers import PasswordResetVerifiedSerializer
 from authemail.serializers import EmailChangeSerializer
 from authemail.serializers import PasswordChangeSerializer
 from authemail.serializers import UserSerializer
+from drf_yasg.utils import swagger_auto_schema
 
 
 class Signup(APIView):
-	permission_classes = (AllowAny,)
-	serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    serializer_class = UserSerializer
 
-	def post(self, request, format=None):
-		serializer = self.serializer_class(data=request.data)
+    @swagger_auto_schema(request_body=UserSerializer)
+    def post(self, request, format=None):
+        serializer = self.serializer_class(data=request.data)
 
-		if serializer.is_valid():
-			cool_name = serializer.data['username']
-			email = serializer.data['email']
-			password = serializer.data['password']
-			AccountType = serializer.data['AccountType']
+        if serializer.is_valid():
+            cool_name = serializer.data['username']
+            email = serializer.data['email']
+            password = serializer.data['password']
+            AccountType = serializer.data['AccountType']
 
-			must_validate_email = getattr(settings, "AUTH_EMAIL_VERIFICATION", True)
+            must_validate_email = getattr(settings, "AUTH_EMAIL_VERIFICATION", True)
 
-			try:
-				user = get_user_model().objects.get(email=email)
-				if user.is_verified:
-					content = {'detail': _('Email address already taken.')}
-					return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                user = get_user_model().objects.get(email=email)
+                if user.is_verified:
+                    content = {'detail': _('Email address already taken.')}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-				try:
-				# Delete old signup codes
-					signup_code =SignupCode.objects.get(user=user)
-					signup_code.delete()
-				except SignupCode.DoesNotExist:
-					pass
-				# except SignupCode.MultipleObjectsReturned:
-				# 	for obj in signup_code:
-				# 		obj.delete()
-			except get_user_model().DoesNotExist:
-				user = get_user_model().objects.create_user(email=email)
+                try:
+                # Delete old signup codes
+                    signup_code =SignupCode.objects.get(user=user)
+                    signup_code.delete()
+                except SignupCode.DoesNotExist:
+                    pass
+                # except SignupCode.MultipleObjectsReturned:
+                # 	for obj in signup_code:
+                # 		obj.delete()
+            except get_user_model().DoesNotExist:
+                user = get_user_model().objects.create_user(email=email)
 
-			try:
-				user = get_user_model().objects.get(cool_name=cool_name)
-				if user.is_verified:
-					content = {'detail': _('Username already taken.')}
-					return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                user = get_user_model().objects.get(cool_name=cool_name)
+                if user.is_verified:
+                    content = {'detail': _('Username already taken.')}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-			except:
-				pass
-
-
-
-			user.set_password(password)
-			user.cool_name =cool_name
-			user.AccountType =AccountType
-			if not must_validate_email:
-				user.is_verified = True
-				template_prefix='welcome_email'
-				subject_file = 'templates/%s_subject.txt' % template_prefix
-				txt_file = 'templates/%s.txt' % template_prefix
-				subject = render_to_string(subject_file).strip()
-				from_email = settings.EMAIL_FROM
-				to = email
-				context={'code':signup_code.code}
-				text_content = render_to_string(txt_file, context)
-
-				send_mail(subject, text_content, from_email, [to])
-
-			user.save()
+            except:
+                pass
 
 
-			if must_validate_email:
-				# Create and associate signup code
-				# ipaddr = self.request.META.get('REMOTE_ADDR', '0.0.0.0')
-					signup_code = SignupCode.objects.create_signup_code(user, '127.0.0.1')
-					template_prefix='signup_email'
-					subject_file = '%s_subject.txt' % template_prefix
-					txt_file = '%s.txt' % template_prefix
-					subject = render_to_string(subject_file).strip()
-					from_email = settings.EMAIL_FROM
-					to = email
-					context={'code':signup_code.code}
-					text_content = render_to_string(txt_file, context)
 
-					send_mail(subject, text_content, from_email, [to])
-				# print("HEY!!!!!! LOOOK HERE!!!! {}".format(ipaddr))
+            user.set_password(password)
+            user.cool_name =cool_name
+            user.AccountType =AccountType
+            if not must_validate_email:
+                user.is_verified = True
+                template_prefix='welcome_email'
+                subject_file = 'templates/%s_subject.txt' % template_prefix
+                txt_file = 'templates/%s.txt' % template_prefix
+                subject = render_to_string(subject_file).strip()
+                from_email = settings.EMAIL_FROM
+                to = email
+                context={'code':signup_code.code}
+                text_content = render_to_string(txt_file, context)
 
-			content = {'email': email, 'cool_name': cool_name,
-			' AccountType':  AccountType}
-			return Response(content, status=status.HTTP_201_CREATED)
+                send_mail(subject, text_content, from_email, [to])
 
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            user.save()
+
+
+            if must_validate_email:
+                # Create and associate signup code
+                # ipaddr = self.request.META.get('REMOTE_ADDR', '0.0.0.0')
+                    signup_code = SignupCode.objects.create_signup_code(user, '127.0.0.1')
+                    template_prefix='signup_email'
+                    subject_file = '%s_subject.txt' % template_prefix
+                    txt_file = '%s.txt' % template_prefix
+                    subject = render_to_string(subject_file).strip()
+                    from_email = settings.EMAIL_FROM
+                    to = email
+                    context={'code':signup_code.code}
+                    text_content = render_to_string(txt_file, context)
+
+                    send_mail(subject, text_content, from_email, [to])
+                # print("HEY!!!!!! LOOOK HERE!!!! {}".format(ipaddr))
+
+            content = {'email': email, 'cool_name': cool_name,
+            ' AccountType':  AccountType}
+            return Response(content, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # temp_user={}
 # client=Client(settings.SID, settings.SECRET)
 class CompleteProfileSerializerView(APIView):
-	permission_classes = (IsAuthenticated,)
-	serializer_class = CompleteProfileSerializer
-	def post(self, request, format=None):
-		serializer = self.serializer_class(data=request.data)
-		user=request.user
-		if serializer.is_valid():
-				context={'First_name':serializer.data['First_name'],
-				'Last_name':serializer.data['Last_name'],
-				'Gender':serializer.data['Gender'],
-				'Phone_number':serializer.data['Phone_number']}
-				# temp_user[First_name]=First_name
-				# temp_user[Last_name]=Last_name
-				# temp_user[Gender]=Gender
-				# temp_user[Phone_number]=Phone_numbers
-				# token=TwilioToken.objects.create_token(serializer.data['Phone_number'])
-				# message=client.messages.create(from_=settings.FROM, body='Here is your verification token from Ayalo {}'.format(token), to=serializer.data['Phone_number'])
-				user.first_name=serializer.data['First_name'],
-				user.last_name=serializer.data['Last_name']
-				user.Gender=serializer.data['Gender']
-				user.Phone_number=serializer.data['Phone_number']
-				user.is_completely_verified=True
-				user.save()
-				
+        permission_classes = (IsAuthenticated,)
+        serializer_class = CompleteProfileSerializer
 
-			# 	content = {'First_name': First_name, 'Last_name': Last_name,
-			# ' Gender': Gender, 'Phone_number':Phone_number}
+        @swagger_auto_schema(request_body=CompleteProfileSerializer)
+        def post(self, request, format=None):
+            serializer = self.serializer_class(data=request.data)
+            user=request.user
+            if serializer.is_valid():
+                    context={'First_name':serializer.data['First_name'],
+                    'Last_name':serializer.data['Last_name'],
+                    'Gender':serializer.data['Gender'],
+                    'Phone_number':serializer.data['Phone_number']}
+                    # temp_user[First_name]=First_name
+                    # temp_user[Last_name]=Last_name
+                    # temp_user[Gender]=Gender
+                    # temp_user[Phone_number]=Phone_numbers
+                    # token=TwilioToken.objects.create_token(serializer.data['Phone_number'])
+                    # message=client.messages.create(from_=settings.FROM, body='Here is your verification token from Ayalo {}'.format(token), to=serializer.data['Phone_number'])
+                    user.first_name=serializer.data['First_name'],
+                    user.last_name=serializer.data['Last_name']
+                    user.Gender=serializer.data['Gender']
+                    user.Phone_number=serializer.data['Phone_number']
+                    user.is_completely_verified=True
+                    user.save()
+                    
 
-			# 	return Response(content, status=status.HTTP_201_CREATED)
+                # 	content = {'First_name': First_name, 'Last_name': Last_name,
+                # ' Gender': Gender, 'Phone_number':Phone_number}
 
-				return Response(context, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                # 	return Response(content, status=status.HTTP_201_CREATED)
+
+                    return Response(context, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class ConfirmPhoneNumberView(APIView):
@@ -175,29 +179,31 @@ class CompleteProfileSerializerView(APIView):
 
 
 class ListLeesee(generics.ListCreateAPIView):
-		queryset = ModelLeesee.objects.all()
-		serializer_class = LeeseeSerializer
-		permission_classes = (IsVerified,)
-		def post(self, request):
-			serializer = self.serializer_class(data=request.data)
-			Leesee = request.user
-			if serializer.is_valid():
-				Business_name = serializer.data['Business_name']
-				business_address=serializer.data['business_address']
-				CAC=serializer.data['CAC']
-				VerificationMethod=serializer.data['VerificationMethod']
-				VerificationField=serializer.data['VerificationField']
-				qs={"Leesee": '{} {}'.format(Leesee.first_name, Leesee.last_name),
-				"Business_name":Business_name, "business_address":business_address,
-				"CAC":CAC, "VerificationMethod":VerificationMethod, "VerificationField":VerificationField}
+        queryset = ModelLeesee.objects.all()
+        serializer_class = LeeseeSerializer
+        permission_classes = (IsVerified,)
 
-				obj=ModelLeesee(Business_name=Business_name, business_address=business_address, CAC=CAC,
-					VerificationField=VerificationField, VerificationMethod=VerificationMethod, Leesee=Leesee)
-				obj.save()
+        @swagger_auto_schema(request_body=LeeseeSerializer)
+        def post(self, request):
+            serializer = self.serializer_class(data=request.data)
+            Leesee = request.user
+            if serializer.is_valid():
+                Business_name = serializer.data['Business_name']
+                business_address=serializer.data['business_address']
+                CAC=serializer.data['CAC']
+                VerificationMethod=serializer.data['VerificationMethod']
+                VerificationField=serializer.data['VerificationField']
+                qs={"Leesee": '{} {}'.format(Leesee.first_name, Leesee.last_name),
+                "Business_name":Business_name, "business_address":business_address,
+                "CAC":CAC, "VerificationMethod":VerificationMethod, "VerificationField":VerificationField}
 
-				# print(request.META['HTTP_HOST'])
-				return Response(qs, status=status.HTTP_201_CREATED)
-			return Response(qs, status=status.HTTP_400_BAD_REQUEST)
+                obj=ModelLeesee(Business_name=Business_name, business_address=business_address, CAC=CAC,
+                    VerificationField=VerificationField, VerificationMethod=VerificationMethod, Leesee=Leesee)
+                obj.save()
+
+                # print(request.META['HTTP_HOST'])
+                return Response(qs, status=status.HTTP_201_CREATED)
+            return Response(qs, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DetailLeesee(generics.RetrieveUpdateDestroyAPIView):
@@ -232,6 +238,7 @@ class Login(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
 
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -279,47 +286,48 @@ class Logout(APIView):
 
 
 class PasswordReset(APIView):
-	permission_classes = (AllowAny,)
-	serializer_class = PasswordResetSerializer
+        permission_classes = (AllowAny,)
+        serializer_class = PasswordResetSerializer
 
-	def post(self, request, format=None):
-		serializer = self.serializer_class(data=request.data)
+        @swagger_auto_schema(request_body=PasswordResetSerializer)
+        def post(self, request, format=None):
+            serializer = self.serializer_class(data=request.data)
 
-		if serializer.is_valid():
-			email = serializer.data['email']
+            if serializer.is_valid():
+                email = serializer.data['email']
 
-			try:
-				user = get_user_model().objects.get(email=email)
+                try:
+                    user = get_user_model().objects.get(email=email)
 
-				# Delete all unused password reset codes
-				PasswordResetCode.objects.filter(user=user).delete()
+                    # Delete all unused password reset codes
+                    PasswordResetCode.objects.filter(user=user).delete()
 
-				if user.is_verified and user.is_active:
-					password_reset_code = PasswordResetCode.objects.create_password_reset_code(user)
-					context={'code':password_reset_code.code}
-					template_prefix='password_reset_email'
-					subject_file = '%s_subject.txt' % template_prefix
-					txt_file = '%s.txt' % template_prefix
-					subject = render_to_string(subject_file).strip()
-					from_email = settings.EMAIL_FROM
-					to = email
-					context={'code':password_reset_code.code}
-					text_content = render_to_string(txt_file, context)
+                    if user.is_verified and user.is_active:
+                        password_reset_code = PasswordResetCode.objects.create_password_reset_code(user)
+                        context={'code':password_reset_code.code}
+                        template_prefix='password_reset_email'
+                        subject_file = '%s_subject.txt' % template_prefix
+                        txt_file = '%s.txt' % template_prefix
+                        subject = render_to_string(subject_file).strip()
+                        from_email = settings.EMAIL_FROM
+                        to = email
+                        context={'code':password_reset_code.code}
+                        text_content = render_to_string(txt_file, context)
 
-					send_mail(subject, text_content, from_email, [to])
-					content = {'email': email}
-					return Response(content, status=status.HTTP_201_CREATED)
+                        send_mail(subject, text_content, from_email, [to])
+                        content = {'email': email}
+                        return Response(content, status=status.HTTP_201_CREATED)
 
-			except get_user_model().DoesNotExist:
-				pass
+                except get_user_model().DoesNotExist:
+                    pass
 
-			# Since this is AllowAny, don't give away error.
-			content = {'detail': _('Password reset not allowed.')}
-			return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                # Since this is AllowAny, don't give away error.
+                content = {'detail': _('Password reset not allowed.')}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-		else:
-			return Response(serializer.errors,
-			status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -349,6 +357,7 @@ class PasswordResetVerified(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetVerifiedSerializer
 
+    @swagger_auto_schema(request_body=PasswordResetVerifiedSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -379,6 +388,7 @@ class EmailChange(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EmailChangeSerializer
 
+    @swagger_auto_schema(request_body=EmailChangeSerializer)  
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -464,6 +474,7 @@ class PasswordChange(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordChangeSerializer
 
+    @swagger_auto_schema(request_body=PasswordChangeSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -517,6 +528,7 @@ class Login(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
 
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -633,6 +645,7 @@ class PasswordResetVerified(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetVerifiedSerializer
 
+    @swagger_auto_schema(request_body=PasswordResetVerifiedSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -663,6 +676,7 @@ class EmailChange(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EmailChangeSerializer
 
+    @swagger_auto_schema(request_body=EmailChangeSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 
@@ -747,7 +761,7 @@ class EmailChangeVerify(APIView):
 class PasswordChange(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordChangeSerializer
-
+    @swagger_auto_schema(request_body=PasswordChangeSerializer)
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
 

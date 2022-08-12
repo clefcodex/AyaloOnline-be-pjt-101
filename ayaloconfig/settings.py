@@ -116,8 +116,7 @@ WSGI_APPLICATION = 'ayaloconfig.wsgi.application'
 SWAGGER_SETTINGS={
     'JSON_EDITOR': True
 }
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+
 DATABASES = {
     'default': dj_database_url.config(
         default=config('DATABASE_URL')
