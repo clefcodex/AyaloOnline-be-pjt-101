@@ -10,7 +10,8 @@ All you need is the "Àyálo Online" platform, from concept to market the platfo
 The platform does not own any equipment but will congregate individuals and companies that own the equipment and help you start and finish the project in time and budget.
 
 ## Documentation
-The documentation for the entire project can be found [here](https://docs.google.com/document/d/1zMxpgaBGehSatTkSlHvNvgHAcBGGvjpWx-zKIvoQ4mM/edit?usp=sharing)
+The documentation for the entire project can be found [here](https://docs.google.com/document/d/1zMxpgaBGehSatTkSlHvNvgHAcBGGvjpWx-zKIvoQ4mM/edit?usp=sharing).
+
 The swagger documentation for the API can be found [here](https://ayalo-auth-api.herokuapp.com/swagger/)
 
 ## ÀyáloOnline-be-pjt-101 Backend API
