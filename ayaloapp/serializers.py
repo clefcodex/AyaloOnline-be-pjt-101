@@ -11,14 +11,6 @@ class UserSerializer(serializers.Serializer):
 			
 
 
-# class CompleteProfileSerializer(serializer.Serializer, PhoneSerializer):
-
-# 		First_name=serializers.CharField()
-# 		Last_name=serializers.CharField()
-# 		gender_choices=[('F', 'Female'), ('M', 'Male')]
-# 		Gender=serializers.CharField(max_length=2, choices=gender_choices)
-
-
 class CompleteProfileSerializer(serializers.Serializer):
 
 		First_name=serializers.CharField()
